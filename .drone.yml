@@ -1,22 +1,5 @@
 ---
 kind: pipeline
-name: on commit to master
-steps:
-  - name: Create a version tag, if version file has been changed
-    image: curlimages/curl
-    commands:
-      - sh auto_create_tag.sh
-    environment:
-      GITHUB_API_KEY:
-        from_secret: GITHUB_API_KEY
-trigger:
-  event:
-  - push
-  branch:
-  - master
-
----
-kind: pipeline
 name: on tag
 steps:
   - name: build docker image
@@ -24,6 +7,7 @@ steps:
     settings:
       repo: ${DRONE_REPO}
       username: andrchalov
+      dockerfile: ./docker/Dockerfile
       password:
         from_secret: DOCKER_REGISTRY_TOKEN
       tags:
@@ -31,7 +15,6 @@ steps:
   - name: publish release
     image: plugins/github-release
     settings:
-      context: docker/
       api_key:
         from_secret: GITHUB_API_KEY
   - name: send telegram notification
@@ -50,6 +33,6 @@ steps:
       format: markdown
     when:
       status: [ success, failure ]
-trigger:
-  event:
-  - tag
+# trigger:
+#   event:
+#   - tag
