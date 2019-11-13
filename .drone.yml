@@ -1,5 +1,23 @@
 ---
 kind: pipeline
+name: on commit
+
+steps:
+  - name: Check that version file has been updated
+    image: curlimages/curl
+    commands:
+      - sh auto_create_tag.sh
+    environment:
+      GITHUB_API_KEY:
+        from_secret: GITHUB_API_KEY
+trigger:
+  event:
+  - push
+  branch:
+  - master
+
+---
+kind: pipeline
 name: on tag
 steps:
   - name: build docker image
