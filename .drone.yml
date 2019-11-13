@@ -7,6 +7,7 @@ steps:
     settings:
       repo: ${DRONE_REPO}
       username: andrchalov
+      context: ./docker
       dockerfile: ./docker/Dockerfile
       password:
         from_secret: DOCKER_REGISTRY_TOKEN
