@@ -24,6 +24,8 @@ BEGIN
 
     IF OLD.runmo > now() - interval '1 min' THEN
       NEW.last_min_repeats = NEW.last_min_repeats + 1;
+    ELSE
+      NEW.last_min_repeats = 1;
     END IF;
   END IF;
 
