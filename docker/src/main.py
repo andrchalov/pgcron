@@ -38,14 +38,16 @@ while True:
   wait = True
   while wait:
     logging.debug("Waiting for notifications on channel %s" % PG_CHANNEL)
+
+    if conn.notifies:
+      notify = conn.notifies.pop(0)
+      logging.debug(u'Getting notification %s, payload: %s', notify.channel, notify.payload)
+      payload = notify.payload
+      wait = False
+      break
+
     if select.select([conn],[],[],30) == ([],[],[]):
       logging.debug(u'Waiting timeout')
       wait = False
     else:
       conn.poll()
-      while conn.notifies:
-        notify = conn.notifies.pop(0)
-        logging.debug(u'Getting notification %s, payload: %s', notify.channel, notify.payload)
-        payload = notify.payload
-        wait = False
-        break
