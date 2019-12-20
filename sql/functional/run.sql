@@ -21,10 +21,9 @@ DECLARE
 
   v_cronjob record;
 	v_affected_rows int;
-
-	-- лимит на кол-во запусков в минуту repeatable заданий
-	C_MAX_REPEATS_IN_MIN int = 100;
 BEGIN
+	PERFORM pg_advisory_xact_lock_shared(0, 0);
+	
 	IF a_payload NOTNULL THEN
 		SELECT * INTO v_cronjob
 			FROM _pgcron.job j
@@ -36,7 +35,7 @@ BEGIN
 	    LEFT JOIN pgcron.lastrun r ON r.schema_name = j.schema_name AND r.func_name = j.func_name
 	    WHERE now() - r.runmo > j.run_interval
 	      OR r ISNULL
-				OR (j.repeatable AND r.last_affected_rows > 0 AND r.last_min_repeats <= C_MAX_REPEATS_IN_MIN)
+				OR (j.repeatable AND r.last_affected_rows > 0 AND r.last_min_repeats <= j.max_repeats_in_min)
 	    ORDER BY r.runmo ASC
 	    LIMIT 1;
 	END IF;
